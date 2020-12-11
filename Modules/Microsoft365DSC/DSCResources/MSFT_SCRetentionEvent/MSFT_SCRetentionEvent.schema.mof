@@ -1,0 +1,20 @@
+[ClassVersion("1.0.0")]
+class MSFT_SharePointAssetIdQuery
+{
+    [Write, Description("SharePoint column name.")] String Key;
+    [Write, Description("SharePoint column value.")] String Value;
+};
+[ClassVersion("1.0.0.0"), FriendlyName("SCRetentionEvent")]
+class MSFT_SCRetentionEvent : OMI_BaseResource
+{
+    [Key, Description("The Name parameter specifies the unique name of the retention event.")] String Name;
+    [Write, Description("Specify if this event should exist or not."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Write, Description("The Comment parameter specifies an optional comment.")] String Comment;
+    [Write, Description("The EventDateTime parameter specifies the date-time of the event.")] DateTime EventDateTime;
+    [Write, Description("The EventTags parameter specifies the name of the labels tha are associated with the compliance retention event.")] String EventTags[];
+    [Write, Description("The EventTypes parameter specifies the name of the labels tha are associated with the compliance retention event.")] String EventTypes[];
+    [Write, Description("The AssetId parameter specifies the Property:Value pair found in the properties of SharePoint or OneDrive for Business documents that's used for retention.")] String AssetId;
+    [Write, Description("The ExchangeAssetIdQuery parameter specifies the keywords that are used to scope Exchange content for the compliance retention event.")] String ExchangeAssetIdQuery;
+    [Write, Description("The SharePointAssetIdQuery parameter specifies one or more the Property:Value pairs that you've specified in the properties (also known as Columns) of SharePoint and OneDrive for Business documents to scope the compliance retention event."),EmbeddedInstance("MSFT_SharePointAssetIdQuery")] String SharePointAssetIdQuery[];
+    [Required, Description("Credentials of the Exchange Global Admin"), EmbeddedInstance("MSFT_Credential")] String GlobalAdminAccount;
+};
