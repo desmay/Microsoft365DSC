@@ -25,11 +25,11 @@ function Get-TargetResource
         $EventTypes,
 
         [Parameter()]
-        [System.String]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $AssetId,
 
         [Parameter()]
-        [System.String]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $ExchangeAssetIdQuery,
 
         [Parameter()]
@@ -82,12 +82,27 @@ function Get-TargetResource
         }
         else
         {
+            foreach ($eventTag in $EventObject.eventTags)
+            {
+                $complianceTag = Get-ComplianceTag -identity $eventTag
+                if ($null -ne $complianceTag)
+                {
+                    $complianceTags += $complianceTag.Name
+                }
+            }
+
+
             Write-Verbose "Found existing RetentionComplianceEvent $($Name)"
             $result = @{
-                Name               = $EventObject.Name
-                Comment            = $EventObject.Comment
-                GlobalAdminAccount = $GlobalAdminAccount
-                Ensure             = 'Present'
+                Name                   = $EventObject.Name
+                Comment                = $EventObject.Comment
+                GlobalAdminAccount     = $GlobalAdminAccount
+                EventDateTime          = $EventObject.EventDateTime
+                EventTags              = $complianceTags
+                AssetId                = $EventObject.AssetId
+                ExchangeAssetIdQuery   = $EventObject.ExchangeAssetIdQuery
+                SharePointAssetIdQuery = $EventObject.SharePointAssetIdQuery
+                Ensure                 = 'Present'
             }
 
             Write-Verbose -Message "Found RetentionComplianceEvent $($Name)"
@@ -147,11 +162,11 @@ function Set-TargetResource
         $EventTypes,
 
         [Parameter()]
-        [System.String]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $AssetId,
 
         [Parameter()]
-        [System.String]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $ExchangeAssetIdQuery,
 
         [Parameter()]
@@ -234,11 +249,11 @@ function Test-TargetResource
         $EventTypes,
 
         [Parameter()]
-        [System.String]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $AssetId,
 
         [Parameter()]
-        [System.String]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $ExchangeAssetIdQuery,
 
         [Parameter()]
