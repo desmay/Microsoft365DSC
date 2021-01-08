@@ -84,6 +84,7 @@ function Get-TargetResource
         {
             foreach ($eventTag in $EventObject.eventTags)
             {
+                $complianceTags = @()
                 $complianceTag = Get-ComplianceTag -identity $eventTag
                 if ($null -ne $complianceTag)
                 {
@@ -200,18 +201,53 @@ function Set-TargetResource
 
     if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentEventType.Ensure))
     {
+        $complianceTags = @()
+        foreach ($eventTag in $EventTags)
+        {
+            $complianceTag = Get-ComplianceTag -identity $eventTag
+            if ($null -ne $complianceTag)
+            {
+                $complianceTags += $complianceTag.Guid
+            }
+        }
+
+        if ($ExchangeAssetIdQuery.Length -gt 0)
+        {
+            $exchangeAssetsArray = @()
+            foreach ($exchangeAsset in $ExchangeAssetIdQuery)
+            {
+                $exchangeAssetValue = @{
+                    Uri   = $attachment.Uri
+                    Alias = $attachment.Alias
+                    Type  = $attachment.Type
+                }
+                $attachmentsArray += $AttachmentsValue
+            }
+            $task.Attachments = $attachmentsArray
+        }
+
         $CreationParams = $PSBoundParameters
+        $CreationParams["EventTags"] = $complianceTags | Out-Null
         $CreationParams.Remove("GlobalAdminAccount") | Out-Null
         $CreationParams.Remove("Ensure") | Out-Null
         New-ComplianceRetentionEventType @CreationParams
     }
     elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentEventType.Ensure))
     {
+        foreach ($eventTag in $CurrentEventType.eventTags)
+        {
+            $complianceTag = Get-ComplianceTag -identity $eventTag
+            if ($null -ne $complianceTag)
+            {
+                $complianceTags += $complianceTag.Guid
+            }
+        }
         $CreationParams = $PSBoundParameters
         $CreationParams.Remove("GlobalAdminAccount") | Out-Null
         $CreationParams.Remove("Ensure") | Out-Null
         $CreationParams.Remove("Name") | Out-Null
         $CreationParams.Add("Identity", $Name)
+        $CreationParams["EventTags"] = $complianceTags | Out-Null
         Set-ComplianceRetentionEventType @CreationParams
     }
     elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentEventType.Ensure))
